@@ -36,6 +36,7 @@ mod stream_chunk_iter;
 pub mod stream_record;
 pub mod struct_array;
 mod utf8_array;
+mod uuid_array;
 
 use std::convert::From;
 use std::hash::{Hash, Hasher};
@@ -63,6 +64,7 @@ pub use stream_chunk::{Op, StreamChunk, StreamChunkTestExt};
 pub use stream_chunk_builder::StreamChunkBuilder;
 pub use struct_array::{StructArray, StructArrayBuilder, StructRef, StructValue};
 pub use utf8_array::*;
+pub use uuid_array::*;
 
 pub use self::error::ArrayError;
 pub use crate::array::num256_array::{Int256Array, Int256ArrayBuilder};

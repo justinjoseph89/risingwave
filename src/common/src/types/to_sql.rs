@@ -48,6 +48,8 @@ impl ToSql for ScalarImpl {
                 bail_not_implemented!("the postgres encoding for {ty} is unsupported")
             }
             ScalarImpl::Map(_) => todo!(),
+            ScalarImpl::Uuid(v) => v.to_sql(ty, out),
+
         }
     }
 
@@ -88,6 +90,8 @@ impl ToSql for ScalarRefImpl<'_> {
                 bail_not_implemented!("the postgres encoding for {ty} is unsupported")
             }
             ScalarRefImpl::Map(_) => todo!(),
+            ScalarRefImpl::Uuid(v) => v.to_sql(ty, out),
+
         }
     }
 
