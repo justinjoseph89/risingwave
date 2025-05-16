@@ -122,6 +122,18 @@ fn postgres_cell_to_scalar_impl(
             tracing::warn!(name, ?data_type, "unsupported data type, set to null");
             None
         }
+        DataType::Uuid => {
+            // Add UUID to this group
+            // ScalarAdapter is also fine. But ScalarImpl is more efficient
+            let res = row.try_get::<_, Option<ScalarImpl>>(i);
+            match res {
+                Ok(val) => val,
+                Err(err) => {
+                    log_error!(name, err, "parse column failed");
+                    None
+                }
+            }
+        }
     }
 }
 

@@ -54,6 +54,7 @@ pub(super) fn data_type_to_ast_data_type(data_type: &DataType) -> AstDataType {
         ),
         DataType::List(typ) => AstDataType::Array(Box::new(data_type_to_ast_data_type(typ))),
         DataType::Map(_) => todo!(),
+        DataType::Uuid => AstDataType::Custom(vec!["UUID".into()].into()),
     }
 }
 

@@ -318,6 +318,7 @@ pub static CAST_TABLE: LazyLock<CastTable> = LazyLock::new(|| {
         ("              .a ", Bytea),       // E
         ("eeeeeeeeeeeeeee. ", Varchar),     // F
         ("   e            .", Serial),
+        ("               e. ", Uuid), // G (new)
     ];
     let mut map = BTreeMap::new();
     for (row, source) in CAST_TABLE {

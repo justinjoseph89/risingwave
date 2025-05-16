@@ -136,7 +136,7 @@ pub fn try_get_exact_serialize_datum_size(arr: &ArrayImpl) -> Option<usize> {
         ArrayImpl::Date(_) => Some(estimate_serialize_date_size()),
         ArrayImpl::Timestamp(_) => Some(estimate_serialize_timestamp_size()),
         ArrayImpl::Time(_) => Some(estimate_serialize_time_size()),
-        ArrayImpl::Uuid(_) => Some(16), 
+        ArrayImpl::Uuid(_) => Some(16),
         _ => None,
     }
     .map(|x| x + 1)
@@ -229,8 +229,7 @@ fn serialize_scalar(value: ScalarRefImpl<'_>, buf: &mut impl BufMut) {
         ScalarRefImpl::Struct(s) => serialize_struct(s, buf),
         ScalarRefImpl::List(v) => serialize_list(v, buf),
         ScalarRefImpl::Map(m) => serialize_list(m.into_inner(), buf),
-        ScalarRefImpl::Uuid(v) => buf.put_slice(&v.to_be_bytes()), 
-
+        ScalarRefImpl::Uuid(v) => buf.put_slice(&v.to_be_bytes()),
     }
 }
 
@@ -257,8 +256,7 @@ fn estimate_serialize_scalar_size(value: ScalarRefImpl<'_>) -> usize {
         ScalarRefImpl::Struct(s) => estimate_serialize_struct_size(s),
         ScalarRefImpl::List(v) => estimate_serialize_list_size(v),
         ScalarRefImpl::Map(v) => estimate_serialize_list_size(v.into_inner()),
-        ScalarRefImpl::Uuid(_) => 16,  // UUID is 16 bytes
-
+        ScalarRefImpl::Uuid(_) => 16, // UUID is 16 bytes
     }
 }
 
@@ -362,7 +360,7 @@ fn deserialize_value(ty: &DataType, data: &mut impl Buf) -> Result<ScalarImpl> {
         DataType::Struct(struct_def) => deserialize_struct(struct_def, data)?,
         DataType::Bytea => ScalarImpl::Bytea(deserialize_bytea(data).into()),
         DataType::List(item_type) => deserialize_list(item_type, data)?,
-        DataType::Uuid => ScalarImpl::Uuid(deserialize_uuid(data)),  
+        DataType::Uuid => ScalarImpl::Uuid(deserialize_uuid(data)),
         DataType::Map(map_type) => {
             // FIXME: clone type everytime here is inefficient
             let list = deserialize_list(&map_type.clone().into_struct(), data)?.into_list();

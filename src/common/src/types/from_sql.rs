@@ -17,6 +17,8 @@ use risingwave_common::types::{
     Date, Interval, JsonbVal, ScalarImpl, Time, Timestamp, Timestamptz,
 };
 
+use super::Uuid;
+
 impl<'a> FromSql<'a> for ScalarImpl {
     fn from_sql(
         ty: &Type,
@@ -39,6 +41,7 @@ impl<'a> FromSql<'a> for ScalarImpl {
             Type::VARCHAR | Type::TEXT | Type::BPCHAR => {
                 ScalarImpl::from(String::from_sql(ty, raw)?)
             }
+            Type::UUID => ScalarImpl::from(Uuid::from_sql(ty, raw)?), // Add this case
             ref ty
                 if (ty.name() == "citext"
                     || ty.name() == "ltree"
@@ -75,6 +78,7 @@ impl<'a> FromSql<'a> for ScalarImpl {
                 | Type::VARCHAR
                 | Type::TEXT
                 | Type::BPCHAR
+                | Type::UUID
         ) || (ty.name() == "citext"
             || ty.name() == "ltree"
             || ty.name() == "lquery"

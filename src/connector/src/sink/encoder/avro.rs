@@ -19,7 +19,7 @@ use apache_avro::schema::{Name, RecordSchema, Schema as AvroSchema};
 use apache_avro::types::{Record, Value};
 use risingwave_common::catalog::Schema;
 use risingwave_common::row::Row;
-use risingwave_common::types::{DataType, DatumRef, ScalarRefImpl, StructType};
+use risingwave_common::types::{DataType, DatumRef, ScalarRefImpl, SelfAsScalarRef, StructType};
 use risingwave_common::util::iter_util::{ZipEqDebug, ZipEqFast};
 use risingwave_connector_codec::decoder::utils::rust_decimal_to_scaled_bigint;
 use thiserror_ext::AsReport;
@@ -587,6 +587,14 @@ fn on_field<D: MaybeData>(
         DataType::Int256 => {
             return no_match_err();
         }
+        DataType::Uuid => match inner {
+            AvroSchema::Uuid => maybe.on_base(|s| {
+                // Convert UUID to bytes
+                let bytes = s.into_uuid().as_scalar_ref().to_be_bytes();
+                Ok(Value::Bytes(bytes.to_vec().into()))
+            })?,
+            _ => return no_match_err(),
+        },
     };
 
     D::handle_nullable_union(value, opt_idx)

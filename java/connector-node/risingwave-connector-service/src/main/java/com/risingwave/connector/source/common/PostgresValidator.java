@@ -699,6 +699,8 @@ public class PostgresValidator extends DatabaseValidator implements AutoCloseabl
                 return val == Data.DataType.TypeName.INTERVAL_VALUE;
             case "jsonb":
                 return val == Data.DataType.TypeName.JSONB_VALUE;
+            case "uuid":
+                return val == Data.DataType.TypeName.UUID_VALUE;
             default:
                 return true; // true for other uncovered types
         }

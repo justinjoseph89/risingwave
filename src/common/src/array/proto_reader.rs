@@ -45,7 +45,6 @@ impl ArrayImpl {
             PbArrayType::Int256 => Int256Array::from_protobuf(array, cardinality)?,
             PbArrayType::Map => MapArray::from_protobuf(array)?,
             PbArrayType::Uuid => UuidArray::from_protobuf(array, cardinality)?,
-
         };
         Ok(array)
     }

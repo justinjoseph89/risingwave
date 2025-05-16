@@ -37,6 +37,7 @@ const TYPE_MATRIX: &str = "
     struct      Struct      StructArray         StructValue     StructRef<'_>       _
     anymap      Map         MapArray            MapValue        MapRef<'_>          _
     any         ???         ArrayImpl           ScalarImpl      ScalarRefImpl<'_>   _
+    uuid        Uuid        UuidArray           Uuid            UuidRef<'_>         _
 ";
 
 /// Maps a data type to its corresponding data type name.

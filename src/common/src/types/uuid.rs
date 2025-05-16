@@ -23,15 +23,15 @@ use postgres_types::{FromSql, IsNull, ToSql, Type, accepts, to_sql_checked};
 use risingwave_common_estimate_size::EstimateSize;
 use risingwave_pb::data::ArrayType;
 use serde::{Deserialize, Serialize};
- use to_text::ToText;
-use uuid::Timestamp;
+use to_text::ToText;
+ /// use uuid::Timestamp;
 
 use crate::array::ArrayResult;
 use crate::types::to_binary::ToBinary;
 use crate::types::{Buf, DataType, Scalar, ScalarRef, to_text};
 
 /// A UUID data type (128-bit).
-#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Default, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Default, Hash)]
 pub struct Uuid(pub(crate) uuid::Uuid);
 
 /// A reference to a `Uuid` value.
@@ -111,10 +111,10 @@ impl Uuid {
     }
 
     /// Create a UUID using a name based on a namespace ID and name (v5).
-    #[inline]
-    pub fn new_v5(name: Timestamp) -> Self {
-        Self(uuid::Uuid::new_v7(name))
-    }
+     /// #[inline]
+     /// pub fn new_v7(name: Timestamp) -> Self {
+     ///     Self(uuid::Uuid::new_v7(name))
+     /// }
 
     /// Returns the size in bytes of a UUID.
     #[inline]
@@ -129,10 +129,10 @@ impl Uuid {
     }
 
     /// Creates a UUID from raw bytes of the specified endianness.
-    ///#[inline]
-    ///pub fn from_ne_bytes(bytes: [u8; 16]) -> Self {
+    /// #[inline]
+    /// pub fn from_ne_bytes(bytes: [u8; 16]) -> Self {
     ///    Self(uuid::Uuid::from_bytes_ne(bytes))
-    ///}
+    /// }
 
     /// Creates a UUID from raw little-endian bytes.
     #[inline]
@@ -183,10 +183,10 @@ impl UuidRef<'_> {
     }
 
     /// Convert to raw bytes in native-endian order.
-    ///#[inline]
-    ///pub fn to_ne_bytes(self) -> [u8; 16] {
+    /// #[inline]
+    /// pub fn to_ne_bytes(self) -> [u8; 16] {
     ///   self.0.to_bytes_ne()
-    ///}
+    /// }
 
     /// Serialize to protocol buffer representation.
     pub fn to_protobuf<T: std::io::Write>(self, output: &mut T) -> ArrayResult<usize> {
@@ -307,8 +307,8 @@ mod tests {
     #[test]
     fn test_uuid_bytes_conversion() {
         let bytes = [
-            0x12, 0x3e, 0x45, 0x67, 0xe8, 0x9b, 0x12, 0xd3, 
-            0xa4, 0x56, 0x42, 0x66, 0x14, 0x17, 0x40, 0x00
+            0x12, 0x3e, 0x45, 0x67, 0xe8, 0x9b, 0x12, 0xd3, 0xa4, 0x56, 0x42, 0x66, 0x14, 0x17,
+            0x40, 0x00,
         ];
         let uuid = Uuid::from_bytes(bytes);
         assert_eq!(uuid.as_scalar_ref().to_be_bytes(), bytes);

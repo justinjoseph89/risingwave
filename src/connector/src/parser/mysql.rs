@@ -204,6 +204,10 @@ pub fn mysql_datum_to_rw_datum(
             "unsupported data type: {}, set to null",
             rw_data_type
         )),
+        DataType::Uuid => Err(anyhow!(
+            "unsupported data type: {}, set to null",
+            rw_data_type
+        )),
     }
 }
 

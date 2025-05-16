@@ -381,7 +381,7 @@ where
             // Note: all messages will be processed through this code path, making it the
             //       only necessary place to log errors.
             if let Err(error) = &result {
-                tracing::error!(error = %error.as_report(), "error when process message");
+                tracing::error!(error = %error.as_report(), "error when process messagedddddddddd");
             }
 
             // Log to optionally-enabled target `PGWIRE_QUERY_LOG`.

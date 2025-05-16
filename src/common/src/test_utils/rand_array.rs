@@ -27,7 +27,7 @@ use rand::{Rng, SeedableRng};
 use crate::array::{Array, ArrayBuilder, ArrayRef, ListValue, MapValue, StructValue};
 use crate::types::{
     DataType, Date, Decimal, Int256, Interval, JsonbVal, MapType, NativeType, Scalar, Serial, Time,
-    Timestamp, Timestamptz,
+    Timestamp, Timestamptz, Uuid,
 };
 
 pub trait RandValue {
@@ -157,6 +157,12 @@ impl RandValue for MapValue {
         MapValue::from_entries(ListValue::empty(&DataType::Struct(
             MapType::struct_type_for_map(DataType::Varchar, DataType::Varchar),
         )))
+    }
+}
+
+impl RandValue for Uuid {
+    fn rand_value<R: Rng>(_rand: &mut R) -> Self {
+        Self(uuid::Uuid::new_v4())
     }
 }
 

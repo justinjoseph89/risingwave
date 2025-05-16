@@ -46,6 +46,10 @@ where
         ExprError::Parse(format!("{} {}", ctx.return_type, err).into())
     })
 }
+//#[function("cast(varchar) -> uuid")]
+//fn str_to_uuid<Uuid>(input: &str, ctx: &Context) -> Result<Uuid> {
+//
+//}
 
 // TODO: introduce `FromBinary` and support all types
 #[function("pgwire_recv(bytea) -> int8")]
@@ -252,6 +256,7 @@ fn map_cast(map: MapRef<'_>, ctx: &Context) -> Result<MapValue> {
     };
     list_cast(map.into_inner(), &new_ctx).map(MapValue::from_entries)
 }
+
 
 #[cfg(test)]
 mod tests {

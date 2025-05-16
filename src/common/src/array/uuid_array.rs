@@ -21,7 +21,7 @@ use risingwave_pb::data::PbArray;
 
 use crate::array::{Array, ArrayBuilder, ArrayImpl, ArrayResult};
 use crate::bitmap::{Bitmap, BitmapBuilder};
-use crate::types::{DataType, Scalar, Uuid, UuidRef};  // Added ScalarRef import here
+use crate::types::{DataType, Scalar, Uuid, UuidRef}; // Added ScalarRef import here
 
 /// Builder for `UuidArray`.
 #[derive(Debug, Clone)]
@@ -57,9 +57,7 @@ impl Array for UuidArray {
     type RefItem<'a> = UuidRef<'a>;
 
     unsafe fn raw_value_at_unchecked(&self, idx: usize) -> Self::RefItem<'_> {
-        unsafe {
-            UuidRef(self.data.get_unchecked(idx))
-        }
+        unsafe { UuidRef(self.data.get_unchecked(idx)) }
     }
 
     fn len(&self) -> usize {
@@ -122,16 +120,11 @@ impl ArrayBuilder for UuidArrayBuilder {
         Self::new(capacity)
     }
 
-    fn append_n(
-        &mut self,
-        n: usize,
-        value: Option<<Self::ArrayType as Array>::RefItem<'_>>,
-    ) {
+    fn append_n(&mut self, n: usize, value: Option<<Self::ArrayType as Array>::RefItem<'_>>) {
         match value {
             Some(x) => {
                 self.bitmap.append_n(n, true);
-                self.data
-                    .extend(std::iter::repeat(*x.0).take(n));
+                self.data.extend(std::iter::repeat(*x.0).take(n));
             }
             None => {
                 self.bitmap.append_n(n, false);
@@ -185,13 +178,6 @@ impl FromIterator<Uuid> for UuidArray {
     }
 }
 
-// Add this implementation for conversion to ArrayImpl
-impl From<UuidArray> for ArrayImpl {
-    fn from(arr: UuidArray) -> Self {
-        Self::Uuid(arr)
-    }
-}
-
 impl UuidArray {
     pub fn from_protobuf(array: &PbArray, cardinality: usize) -> ArrayResult<ArrayImpl> {
         ensure!(
@@ -223,8 +209,9 @@ impl UuidArray {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::str::FromStr;
+
+    use super::*;
 
     #[test]
     fn test_uuid_array() {
@@ -240,7 +227,10 @@ mod tests {
         // Test creating array from iterator
         let array: UuidArray = uuids.clone().into_iter().collect();
         for (i, uuid) in uuids.iter().enumerate() {
-            assert_eq!(crate::types::ScalarRef::to_owned_scalar(&array.value_at(i).unwrap()), *uuid);
+            assert_eq!(
+                crate::types::ScalarRef::to_owned_scalar(&array.value_at(i).unwrap()),
+                *uuid
+            );
         }
 
         // Test builder
@@ -252,7 +242,10 @@ mod tests {
 
         assert_eq!(array.len(), 3);
         for (i, uuid) in uuids.iter().enumerate() {
-            assert_eq!(crate::types::ScalarRef::to_owned_scalar(&array.value_at(i).unwrap()), *uuid);
+            assert_eq!(
+                crate::types::ScalarRef::to_owned_scalar(&array.value_at(i).unwrap()),
+                *uuid
+            );
         }
     }
 
@@ -289,19 +282,23 @@ mod tests {
         }
         builder.append(None);
         let array = builder.finish();
-        
+
         // Convert to protobuf and back
         let proto = array.to_protobuf();
-         let array2_impl = UuidArray::from_protobuf(&proto, 4).unwrap();
+        let array2_impl = UuidArray::from_protobuf(&proto, 4).unwrap();
 
         // Verify array values are preserved
-// Convert ArrayImpl to UuidArray
-let array2 = match array2_impl {
-    ArrayImpl::Uuid(uuid_array) => uuid_array,
-    _ => panic!("Expected UUID array"),
-};        assert_eq!(array2.len(), 4);
+        // Convert ArrayImpl to UuidArray
+        let array2 = match array2_impl {
+            ArrayImpl::Uuid(uuid_array) => uuid_array,
+            _ => panic!("Expected UUID array"),
+        };
+        assert_eq!(array2.len(), 4);
         for (i, uuid) in uuids.iter().enumerate() {
-            assert_eq!(crate::types::ScalarRef::to_owned_scalar(&array2.value_at(i).unwrap()), *uuid);
+            assert_eq!(
+                crate::types::ScalarRef::to_owned_scalar(&array2.value_at(i).unwrap()),
+                *uuid
+            );
         }
         assert!(array2.is_null(3));
     }

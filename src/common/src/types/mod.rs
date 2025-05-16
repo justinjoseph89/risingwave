@@ -71,11 +71,12 @@ mod timestamptz;
 mod to_binary;
 mod to_sql;
 mod to_text;
-mod with_data_type;
 mod uuid;
- 
+mod with_data_type;
+
 pub use fields::Fields;
 pub use risingwave_fields_derive::Fields;
+pub use uuid::{Uuid, UuidRef};
 
 pub use self::cow::DatumCow;
 pub use self::datetime::{Date, Time, Timestamp};
@@ -96,8 +97,7 @@ pub use self::successor::Successor;
 pub use self::timestamptz::*;
 pub use self::to_text::ToText;
 pub use self::with_data_type::WithDataType;
-pub use uuid::{Uuid, UuidRef};
- 
+
 /// A 32-bit floating point type with total order.
 pub type F32 = ordered_float::OrderedFloat<f32>;
 
@@ -222,7 +222,6 @@ impl TryFrom<DataTypeName> for DataType {
                 "Functions returning composite types can not be inferred. Please use `FunctionCall::new_unchecked`.",
             ),
             DataTypeName::Uuid => Ok(DataType::Uuid),
-
         }
     }
 }
@@ -304,7 +303,6 @@ impl From<DataTypeName> for PbTypeName {
             DataTypeName::Int256 => PbTypeName::Int256,
             DataTypeName::Map => PbTypeName::Map,
             DataTypeName::Uuid => PbTypeName::Uuid,
-
         }
     }
 }
@@ -362,7 +360,6 @@ pub mod data_types {
                 | DataType::Serial
                 | DataType::Int256
                 | DataType::Uuid
-
         };
     }
     pub use _simple_data_types as simple;
@@ -445,7 +442,6 @@ impl DataType {
             | DataType::Serial
             | DataType::Uuid
             | DataType::Int256 => (),
-        
         }
         pb
     }
@@ -994,8 +990,6 @@ impl From<ListRef<'_>> for ScalarImpl {
     }
 }
 
-
-
 impl ScalarImpl {
     /// Creates a scalar from pgwire "BINARY" format.
     ///
@@ -1032,7 +1026,6 @@ impl ScalarImpl {
                 return Err(format!("unsupported data type: {}", data_type).into());
             }
             DataType::Uuid => Self::Uuid(Uuid::from_sql(&Type::UUID, bytes)?),
-
         };
         Ok(res)
     }
@@ -1065,7 +1058,6 @@ impl ScalarImpl {
             DataType::Bytea => str_to_bytea(s)?.into(),
             DataType::Map(_m) => return Err("map from text is not supported".into()),
             DataType::Uuid => Uuid::from_str(s)?.into(),
-
         })
     }
 
@@ -1172,7 +1164,6 @@ impl ScalarRefImpl<'_> {
             Self::List(v) => v.memcmp_serialize(ser)?,
             Self::Map(v) => v.memcmp_serialize(ser)?,
             Self::Uuid(v) => v.memcmp_serialize(ser)?,
-
         };
         Ok(())
     }

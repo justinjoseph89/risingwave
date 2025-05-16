@@ -398,6 +398,13 @@ impl From<MapArray> for ArrayImpl {
     }
 }
 
+// Add this implementation for conversion to ArrayImpl
+impl From<UuidArray> for ArrayImpl {
+    fn from(arr: UuidArray) -> Self {
+        Self::Uuid(arr)
+    }
+}
+
 /// `impl_convert` implements several conversions for `Array` and `ArrayBuilder`.
 /// * `ArrayImpl -> &Array` with `impl.as_int16()`.
 /// * `ArrayImpl -> Array` with `impl.into_int16()`.

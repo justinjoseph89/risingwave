@@ -19,7 +19,7 @@ use bytes::Bytes;
 
 use super::{
     DataType, Date, Decimal, F32, F64, Fields, Int256, Interval, JsonbRef, JsonbVal, Serial,
-    StructType, Time, Timestamp, Timestamptz,
+    StructType, Time, Timestamp, Timestamptz, Uuid, UuidRef,
 };
 
 /// A trait for all physical types that can be associated with a [`DataType`].
@@ -108,6 +108,7 @@ impl_with_data_type!(Interval, DataType::Interval);
 impl_with_data_type!(Vec<u8>, DataType::Bytea);
 impl_with_data_type!(Bytes, DataType::Bytea);
 impl_with_data_type!(JsonbVal, DataType::Jsonb);
+impl_with_data_type!(Uuid, DataType::Uuid);
 
 impl WithDataType for JsonbRef<'_> {
     fn default_data_type() -> DataType {
@@ -139,5 +140,12 @@ where
 {
     fn default_data_type() -> DataType {
         DataType::Struct(StructType::new(T::fields()))
+    }
+}
+
+impl WithDataType for UuidRef<'_> {
+    // Add this implementation
+    fn default_data_type() -> DataType {
+        DataType::Uuid
     }
 }

@@ -458,6 +458,19 @@ fn on_field<D: MaybeData>(
                 return no_match_err();
             }
         }
+        DataType::Uuid => match proto_field.kind() {
+            Kind::Bytes => {
+                maybe.on_base(|s| {
+                    // Convert UUID to bytes
+                    let uuid_ref = s.into_uuid();
+                    let bytes = risingwave_common::types::SelfAsScalarRef::as_scalar_ref(&uuid_ref)
+                        .to_be_bytes();
+                    Ok(Value::Bytes(Bytes::copy_from_slice(&bytes)))
+                })?
+            }
+            Kind::String => maybe.on_base(|s| Ok(Value::String(s.into_uuid().to_string())))?,
+            _ => return no_match_err(),
+        },
     };
 
     Ok(value)

@@ -49,7 +49,6 @@ impl ToSql for ScalarImpl {
             }
             ScalarImpl::Map(_) => todo!(),
             ScalarImpl::Uuid(v) => v.to_sql(ty, out),
-
         }
     }
 
@@ -91,7 +90,6 @@ impl ToSql for ScalarRefImpl<'_> {
             }
             ScalarRefImpl::Map(_) => todo!(),
             ScalarRefImpl::Uuid(v) => v.to_sql(ty, out),
-
         }
     }
 

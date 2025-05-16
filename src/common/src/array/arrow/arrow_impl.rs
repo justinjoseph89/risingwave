@@ -118,6 +118,9 @@ pub trait ToArrow {
             ArrayImpl::List(array) => self.list_to_arrow(data_type, array),
             ArrayImpl::Struct(array) => self.struct_to_arrow(data_type, array),
             ArrayImpl::Map(array) => self.map_to_arrow(data_type, array),
+            ArrayImpl::Uuid(_) => Err(ArrayError::from_arrow(
+                "UUID to Arrow conversion not yet implemented".to_string(),
+            )),
         }?;
         if arrow_array.data_type() != data_type {
             arrow_cast::cast(&arrow_array, data_type).map_err(ArrayError::to_arrow)
@@ -330,6 +333,7 @@ pub trait ToArrow {
             DataType::Struct(fields) => self.struct_type_to_arrow(fields)?,
             DataType::List(datatype) => self.list_type_to_arrow(datatype)?,
             DataType::Map(datatype) => self.map_type_to_arrow(datatype)?,
+            DataType::Uuid => self.uuid_type_to_arrow(),
         };
         Ok(arrow_schema::Field::new(name, data_type, true))
     }
@@ -464,6 +468,11 @@ pub trait ToArrow {
             )),
             sorted,
         ))
+    }
+
+    #[inline]
+    fn uuid_type_to_arrow(&self) -> arrow_schema::DataType {
+        arrow_schema::DataType::Binary
     }
 }
 
