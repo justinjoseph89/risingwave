@@ -337,7 +337,9 @@ impl Strong {
             | ExprType::HasSchemaPrivilege
             | ExprType::InetAton
             | ExprType::InetNtoa
-            | ExprType::RwEpochToTs => false,
+            | ExprType::GenRandomUuid => true, // Assuming this function has no side effects
+            ExprType::GenUuidFromString => true,
+            ExprType::RwEpochToTs => false,
             ExprType::Unspecified => unreachable!(),
         }
     }

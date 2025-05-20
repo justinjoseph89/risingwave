@@ -90,6 +90,7 @@ mod external;
 mod inet;
 mod test_license;
 mod to_timestamp;
+mod to_uuid;
 mod translate;
 mod trigonometric;
 mod trim;

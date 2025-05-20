@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use std::fmt::{Display, Formatter, Write};
-use std::hash::Hasher;
+use std::hash::{DefaultHasher, Hasher};
 use std::io::Read;
 use std::mem;
 use std::str::FromStr;
@@ -24,8 +24,8 @@ use risingwave_common_estimate_size::EstimateSize;
 use risingwave_pb::data::ArrayType;
 use serde::{Deserialize, Serialize};
 use to_text::ToText;
- /// use uuid::Timestamp;
 
+/// use uuid::Timestamp;
 use crate::array::ArrayResult;
 use crate::types::to_binary::ToBinary;
 use crate::types::{Buf, DataType, Scalar, ScalarRef, to_text};
@@ -111,10 +111,10 @@ impl Uuid {
     }
 
     /// Create a UUID using a name based on a namespace ID and name (v5).
-     /// #[inline]
-     /// pub fn new_v7(name: Timestamp) -> Self {
-     ///     Self(uuid::Uuid::new_v7(name))
-     /// }
+    /// #[inline]
+    /// pub fn new_v7(name: Timestamp) -> Self {
+    ///     Self(uuid::Uuid::new_v7(name))
+    /// }
 
     /// Returns the size in bytes of a UUID.
     #[inline]
@@ -158,6 +158,44 @@ impl Uuid {
         let mut buf = [0; 16];
         input.read_exact(&mut buf)?;
         Ok(Self::from_be_bytes(buf))
+    }
+
+    /// Implementation manually, and is this effective or any other alternate ways to make it more better?
+    #[inline]
+    pub fn from_arbitrary_string_builder(s: &str) -> Self {
+        // Hash the string to get reproducible bytes
+        let mut hasher = DefaultHasher::new();
+        std::hash::Hash::hash(&s, &mut hasher);
+        let hash = hasher.finish();
+
+        // Extract fields for the UUID
+        let d1 = (hash & 0xFFFFFFFF) as u32;
+        let d2 = ((hash >> 32) & 0xFFFF) as u16;
+        let d3 = ((hash >> 48) & 0xFFFF) as u16;
+
+        // For d4, we'll generate a stable value based on the string length
+        let len = s.len() as u64;
+        let d4_high = ((len.wrapping_mul(0x9E3779B9) >> 48) & 0xFFFF) as u16;
+        let d4_low = ((hash.wrapping_add(len)) & 0xFFFFFFFFFFFF) as u64;
+
+        // Use the builder method with version and variant bits set properly
+        let d3_version = (d3 & 0x0FFF) | 0x4000; // Version 4
+        let d4_variant = ((d4_high & 0x3FFF) | 0x8000) as u16; // Variant 1
+        let d4_rest = d4_low & 0xFFFFFFFFFFFF;
+
+        // Combine into a byte array
+        let d4 = [
+            (d4_variant >> 8) as u8,
+            d4_variant as u8,
+            (d4_rest >> 40) as u8,
+            (d4_rest >> 32) as u8,
+            (d4_rest >> 24) as u8,
+            (d4_rest >> 16) as u8,
+            (d4_rest >> 8) as u8,
+            d4_rest as u8,
+        ];
+
+        Self(uuid::Uuid::from_fields(d1, d2, d3_version, &d4))
     }
 
     /// Deserialize from a memcomparable encoding.

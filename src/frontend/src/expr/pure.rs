@@ -302,7 +302,10 @@ impl ExprVisitor for ImpureAnalyzer {
             | Type::PgIsInRecovery
             | Type::RwRecoveryStatus
             | Type::PgTableIsVisible
-            | Type::HasFunctionPrivilege => self.impure = true,
+            | Type::HasFunctionPrivilege
+            | Type::GenRandomUuid
+            | Type::GenUuidFromString => self.impure = true,
+
         }
     }
 }
