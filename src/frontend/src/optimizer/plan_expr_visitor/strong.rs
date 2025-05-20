@@ -340,6 +340,8 @@ impl Strong {
             | ExprType::GenRandomUuid => true, // Assuming this function has no side effects
             ExprType::GenUuidFromString => true,
             ExprType::RwEpochToTs => false,
+            ExprType::GenUuidFromBytea => true,
+            ExprType::GenUuidFromU256 => true,
             ExprType::Unspecified => unreachable!(),
         }
     }

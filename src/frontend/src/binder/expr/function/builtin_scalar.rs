@@ -436,6 +436,8 @@ impl Binder {
                 ("map_length", raw_call(ExprType::MapLength)),
                 ("gen_random_uuid", raw_call(ExprType::GenRandomUuid)),
                 ("gen_uuid_from_string", raw_call(ExprType::GenUuidFromString)),
+                ("gen_uuid_from_u256", raw_call(ExprType::GenUuidFromU256)),
+                ("gen_uuid_from_bytes", raw_call(ExprType::GenUuidFromBytea)),
 
                 // Functions that return a constant value
                 ("pi", pi()),

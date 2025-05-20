@@ -146,6 +146,14 @@ impl Uuid {
         Self(uuid::Uuid::from_bytes(bytes))
     }
 
+    #[inline]
+    pub fn from_varchar(s: &str) -> Self {
+        match uuid::Uuid::parse_str(s) {
+            Ok(uuid) => Self(uuid),
+            Err(_) => Self::nil(),
+        }
+    }
+
     /// Deserialize from protocol buffer representation.
     pub fn from_protobuf(input: &mut impl Read) -> ArrayResult<Self> {
         let mut buf = [0u8; 16];
@@ -321,6 +329,8 @@ impl<'a> ToSql for UuidRef<'a> {
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashSet;
+
     use super::*;
 
     #[test]
@@ -338,8 +348,64 @@ mod tests {
 
     #[test]
     fn test_uuid_v4() {
-        let uuid = Uuid::new_v4();
-        assert_ne!(uuid, Uuid::nil());
+        // Generate multiple random UUIDs to ensure uniqueness
+        let uuid1 = Uuid::new_v4();
+        let uuid2 = Uuid::new_v4();
+        let uuid3 = Uuid::new_v4();
+
+        // Test non-nil
+        assert_ne!(uuid1, Uuid::nil());
+
+        // Test uniqueness
+        assert_ne!(uuid1, uuid2);
+        assert_ne!(uuid1, uuid3);
+        assert_ne!(uuid2, uuid3);
+
+        // Test version (should be 4 for random UUIDs)
+        // Extract the version nibble (13th character position of the string)
+        assert_eq!(uuid1.to_string().chars().nth(14), Some('4'));
+        assert_eq!(uuid2.to_string().chars().nth(14), Some('4'));
+        assert_eq!(uuid3.to_string().chars().nth(14), Some('4'));
+
+        // Test variant (should be 1 for RFC4122 UUIDs)
+        // The variant is in the most significant bits of the 8th octet
+        let variant1 = (uuid1.as_scalar_ref().to_be_bytes()[8] >> 6) & 0b11;
+        let variant2 = (uuid2.as_scalar_ref().to_be_bytes()[8] >> 6) & 0b11;
+        let variant3 = (uuid3.as_scalar_ref().to_be_bytes()[8] >> 6) & 0b11;
+
+        assert_eq!(variant1, 0b10); // This is variant 1
+        assert_eq!(variant2, 0b10);
+        assert_eq!(variant3, 0b10);
+    }
+
+    #[test]
+    fn test_uuid_from_arbitrary_string_builder() {
+        // Test deterministic generation (same input = same UUID)
+        let uuid1a = Uuid::from_arbitrary_string_builder("test_string");
+        let uuid1b = Uuid::from_arbitrary_string_builder("test_string");
+        assert_eq!(uuid1a, uuid1b);
+
+        // Test uniqueness for different inputs
+        let uuid2 = Uuid::from_arbitrary_string_builder("different_string");
+        assert_ne!(uuid1a, uuid2);
+
+        // Test with empty string
+        let empty1 = Uuid::from_arbitrary_string_builder("");
+        let empty2 = Uuid::from_arbitrary_string_builder("");
+        assert_eq!(empty1, empty2);
+
+        // Test with very long string
+        let long_string = "a".repeat(1000);
+        let long1 = Uuid::from_arbitrary_string_builder(&long_string);
+        let long2 = Uuid::from_arbitrary_string_builder(&long_string);
+        assert_eq!(long1, long2);
+
+        // Verify version 4 (random) format is being used
+        assert_eq!(uuid1a.to_string().chars().nth(14), Some('4'));
+
+        // Test variant (should be 1 for RFC4122 UUIDs)
+        let variant = (uuid1a.as_scalar_ref().to_be_bytes()[8] >> 6) & 0b11;
+        assert_eq!(variant, 0b10); // This is variant 1
     }
 
     #[test]
@@ -350,11 +416,122 @@ mod tests {
         ];
         let uuid = Uuid::from_bytes(bytes);
         assert_eq!(uuid.as_scalar_ref().to_be_bytes(), bytes);
+
+        // Test from_le_bytes and to_le_bytes
+        let le_bytes = uuid.as_scalar_ref().to_le_bytes();
+        let uuid_from_le = Uuid::from_le_bytes(le_bytes);
+        assert_eq!(uuid, uuid_from_le);
+
+        // Test round-trip through u128
+        let u128_value = uuid.as_u128();
+        let uuid_from_u128 = Uuid::from_u128(u128_value);
+        assert_eq!(uuid, uuid_from_u128);
+    }
+
+    #[test]
+    fn test_uuid_from_binary() {
+        let original = Uuid::new_v4();
+        let bytes = original.as_scalar_ref().to_be_bytes();
+
+        // Test from_binary
+        let from_binary = Uuid::from_binary(&bytes).unwrap();
+        assert_eq!(original, from_binary);
+
+        // Test error case with insufficient bytes
+        let short_bytes = &bytes[0..15];
+        assert!(Uuid::from_binary(short_bytes).is_err());
+    }
+
+    #[test]
+    fn test_uuid_display() {
+        let uuid_str = "123e4567-e89b-12d3-a456-426614174000";
+        let uuid = Uuid::from_str(uuid_str).unwrap();
+
+        // Test Display for Uuid
+        assert_eq!(format!("{}", uuid), uuid_str);
+
+        // Test Display for UuidRef
+        assert_eq!(format!("{}", uuid.as_scalar_ref()), uuid_str);
+    }
+
+    #[test]
+    fn test_uuid_to_from_sql() {
+        let original = Uuid::new_v4();
+        let mut bytes = BytesMut::new();
+
+        // Test to_sql
+        let result = original.to_sql(&Type::UUID, &mut bytes);
+        assert!(result.is_ok());
+
+        // Test from_sql
+        let from_sql = Uuid::from_sql(&Type::UUID, &bytes).unwrap();
+        assert_eq!(original, from_sql);
+
+        // Test invalid length error
+        let short_bytes = &bytes[0..15];
+        assert!(Uuid::from_sql(&Type::UUID, short_bytes).is_err());
+    }
+
+    #[test]
+    fn test_uuid_scalar_ref() {
+        let original = Uuid::new_v4();
+        let ref_uuid = original.as_scalar_ref();
+
+        // Test to_owned_scalar
+        let owned = ref_uuid.to_owned_scalar();
+        assert_eq!(original, owned);
+
+        // Test hash_scalar
+        let mut hasher1 = DefaultHasher::new();
+        let mut hasher2 = DefaultHasher::new();
+        std::hash::Hash::hash(&original.0, &mut hasher1);
+        ref_uuid.hash_scalar(&mut hasher2);
+        assert_eq!(hasher1.finish(), hasher2.finish());
     }
 
     #[test]
     fn test_uuid_estimate_size() {
         let uuid = Uuid::new_v4();
         assert_eq!(uuid.estimated_heap_size(), 0);
+    }
+
+    #[test]
+    fn test_uuid_collisions() {
+        // Test a large number of strings to ensure low collision rate
+        let test_strings: Vec<String> = (0..1000).map(|i| format!("test_string_{}", i)).collect();
+
+        let mut uuids = HashSet::new();
+        for s in &test_strings {
+            let uuid = Uuid::from_arbitrary_string_builder(s);
+            uuids.insert(uuid);
+        }
+
+        // We should have very few or no collisions in 1000 different strings
+        // Allow for a small number of collisions (less than 1%)
+        assert!(
+            uuids.len() > 990,
+            "Too many UUID collisions: expected >990, got {}",
+            uuids.len()
+        );
+    }
+
+    #[test]
+    fn test_uuid_from_str_errors() {
+        // Test various invalid UUID strings
+        let invalid_cases = [
+            "",                                      // Empty string
+            "not-a-uuid",                            // Non-UUID format
+            "123e4567-e89b-12d3-a456",               // Too short
+            "123e4567-e89b-12d3-a456-4266141740001", // Too long
+            "123e4567-e89b-12d3-a456-42661417400g",  // Invalid character
+        ];
+
+        for invalid in &invalid_cases {
+            assert!(
+                Uuid::from_str(invalid).is_err(),
+                "Expected error for: {}",
+                invalid
+            );
+        }
     }
 }

@@ -304,6 +304,8 @@ impl ExprVisitor for ImpureAnalyzer {
             | Type::PgTableIsVisible
             | Type::HasFunctionPrivilege
             | Type::GenRandomUuid
+            | Type::GenUuidFromBytea
+            | Type::GenUuidFromU256
             | Type::GenUuidFromString => self.impure = true,
 
         }
