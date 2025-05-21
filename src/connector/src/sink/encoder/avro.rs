@@ -583,6 +583,14 @@ fn on_field<D: MaybeData>(
             }
             _ => return no_match_err(),
         },
+        DataType::Uuid => match inner {
+            AvroSchema::Uuid => maybe.on_base(|s| {
+                // Convert UUID to bytes
+                let bytes = s.into_uuid().to_be_bytes();
+                Ok(Value::Bytes(bytes.to_vec().into()))
+            })?,
+            _ => return no_match_err(),
+        },
         // Group D: unsupported
         DataType::Int256 => {
             return no_match_err();

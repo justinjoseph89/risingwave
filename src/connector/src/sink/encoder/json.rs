@@ -403,6 +403,7 @@ pub(crate) fn schema_type_mapping(rw_type: &DataType) -> &'static str {
         DataType::Jsonb => "string",
         DataType::Serial => "string",
         DataType::Int256 => "string",
+        DataType::Uuid => "string",
         DataType::Map(_) => "map",
     }
 }

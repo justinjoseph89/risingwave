@@ -16,10 +16,10 @@ use std::rc::Rc;
 use std::sync::Arc;
 
 use bytes::Bytes;
+use uuid::Uuid;
 
 use super::{
-    DataType, Date, Decimal, F32, F64, Fields, Int256, Interval, JsonbRef, JsonbVal, Serial,
-    StructType, Time, Timestamp, Timestamptz,
+    DataType, Date, Decimal, Fields, Int256, Interval, JsonbRef, JsonbVal, Serial, StructType, Time, Timestamp, Timestamptz, UuidRef, F32, F64
 };
 
 /// A trait for all physical types that can be associated with a [`DataType`].
@@ -92,9 +92,16 @@ impl_with_data_type!(rust_decimal::Decimal, DataType::Decimal);
 impl_with_data_type!(Decimal, DataType::Decimal);
 impl_with_data_type!(Serial, DataType::Serial);
 
+
 impl WithDataType for &str {
     fn default_data_type() -> DataType {
         DataType::Varchar
+    }
+}
+impl WithDataType for UuidRef<'_> {
+    // Add this implementation
+    fn default_data_type() -> DataType {
+        DataType::Uuid
     }
 }
 
@@ -108,6 +115,7 @@ impl_with_data_type!(Interval, DataType::Interval);
 impl_with_data_type!(Vec<u8>, DataType::Bytea);
 impl_with_data_type!(Bytes, DataType::Bytea);
 impl_with_data_type!(JsonbVal, DataType::Jsonb);
+impl_with_data_type!(Uuid, DataType::Uuid);
 
 impl WithDataType for JsonbRef<'_> {
     fn default_data_type() -> DataType {
