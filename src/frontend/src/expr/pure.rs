@@ -268,6 +268,8 @@ impl ExprVisitor for ImpureAnalyzer {
             | Type::MapDelete
             | Type::MapInsert
             | Type::MapLength
+            | Type::GenUuidFromString
+            | Type::GenUuidFromBytea
             | Type::VnodeUser
             | Type::RwEpochToTs
             | Type::CheckNotNull =>

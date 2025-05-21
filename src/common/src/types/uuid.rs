@@ -112,6 +112,15 @@ impl Uuid {
         Self(uuid::Uuid::new_v4())
     }
 
+    /// Generate a UUID from any String (v5).
+    #[inline]
+    pub fn new_v5(input: &str) -> Self {
+        Self(uuid::Uuid::new_v5(
+            &uuid::Uuid::NAMESPACE_OID,
+            input.as_bytes(),
+        ))
+    }
+
     /// Create a UUID using a name based on a namespace ID and name (v5).
     /// #[inline]
     /// pub fn new_v7(name: Timestamp) -> Self {

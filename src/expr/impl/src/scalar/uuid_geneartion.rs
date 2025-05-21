@@ -19,3 +19,22 @@ use risingwave_expr::function;
 pub fn gen_random_uuid() -> Uuid {
     Uuid::new_v4()
 }
+
+/// Generate a random UUID using the gen_random_uuid() function
+#[function("gen_uuid_from_string(varchar) -> uuid")]
+pub fn gen_uuid_from_string(input: &str) -> Uuid {
+    Uuid::new_v5(input)
+}
+
+/// Generate a UUID from 16 bytes
+#[function("gen_uuid_from_bytea(bytea) -> uuid")]
+pub fn gen_uuid_from_bytea(bytes: &[u8]) -> Uuid {
+    if bytes.len() == 16 {
+        let mut arr = [0u8; 16];
+        arr.copy_from_slice(bytes);
+        Uuid::from_bytes(arr)
+    } else {
+        // a nil UUID than to panic
+        Uuid::nil()
+    }
+}

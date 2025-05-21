@@ -19,7 +19,8 @@ use bytes::Bytes;
 use uuid::Uuid;
 
 use super::{
-    DataType, Date, Decimal, Fields, Int256, Interval, JsonbRef, JsonbVal, Serial, StructType, Time, Timestamp, Timestamptz, UuidRef, F32, F64
+    DataType, Date, Decimal, F32, F64, Fields, Int256, Interval, JsonbRef, JsonbVal, Serial,
+    StructType, Time, Timestamp, Timestamptz, UuidRef,
 };
 
 /// A trait for all physical types that can be associated with a [`DataType`].
@@ -91,7 +92,6 @@ impl_with_data_type!(F64, DataType::Float64);
 impl_with_data_type!(rust_decimal::Decimal, DataType::Decimal);
 impl_with_data_type!(Decimal, DataType::Decimal);
 impl_with_data_type!(Serial, DataType::Serial);
-
 
 impl WithDataType for &str {
     fn default_data_type() -> DataType {
