@@ -434,6 +434,10 @@ impl Binder {
                 ("map_delete", raw_call(ExprType::MapDelete)),
                 ("map_insert", raw_call(ExprType::MapInsert)),
                 ("map_length", raw_call(ExprType::MapLength)),
+                
+                //uuid functions
+                ("gen_random_uuid", raw_call(ExprType::GenRandomUuid)),
+
                 // Functions that return a constant value
                 ("pi", pi()),
                 // greatest and least

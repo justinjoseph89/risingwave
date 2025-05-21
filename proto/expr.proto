@@ -304,6 +304,9 @@ message ExprNode {
     MAP_CAT = 708;
     MAP_INSERT = 709;
     MAP_DELETE = 710;
+    
+    //UUID functions
+    GEN_RANDOM_UUID = 750;
 
     // Non-pure functions below (> 1000)
     // ------------------------

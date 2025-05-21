@@ -302,6 +302,7 @@ impl ExprVisitor for ImpureAnalyzer {
             | Type::PgIsInRecovery
             | Type::RwRecoveryStatus
             | Type::PgTableIsVisible
+            | Type::GenRandomUuid => self.impure = true, // setting as impure as it generate different results
             | Type::HasFunctionPrivilege => self.impure = true,
         }
     }

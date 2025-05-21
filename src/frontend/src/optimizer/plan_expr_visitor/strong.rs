@@ -310,6 +310,7 @@ impl Strong {
             | ExprType::MapDelete
             | ExprType::MapInsert
             | ExprType::MapLength
+            | ExprType::GenRandomUuid
             | ExprType::Vnode
             | ExprType::VnodeUser
             | ExprType::TestPaidTier
