@@ -446,6 +446,31 @@ fn on_field<D: MaybeData>(
         },
         DataType::Varchar => match inner {
             AvroSchema::String => maybe.on_base(|s| Ok(Value::String(s.into_utf8().into())))?,
+
+            // NEW: Add enum support
+            AvroSchema::Enum(enum_schema) => {
+                maybe.on_base(|s| {
+                    let str_value = s.into_utf8();
+
+                    // Validate that the string value is one of the enum symbols
+                    if enum_schema.symbols.contains(&str_value.to_string()) {
+                        Ok(Value::Enum(
+                            enum_schema
+                                .symbols
+                                .iter()
+                                .position(|symbol| symbol == str_value)
+                                .unwrap() as u32,
+                            str_value.to_string(),
+                        ))
+                    } else {
+                        Err(FieldEncodeError::new(format!(
+                            "Value '{}' is not a valid enum symbol. Valid symbols are: {:?}",
+                            str_value, enum_schema.symbols
+                        )))
+                    }
+                })?
+            }
+
             _ => return no_match_err(),
         },
         DataType::Bytea => match inner {
@@ -968,6 +993,28 @@ mod tests {
                     ]),
                 ),
             ]),
+        );
+
+        // NEW: Varchar to Enum tests
+        test_ok(
+            &DataType::Varchar,
+            Some(ScalarImpl::Utf8("RED".into())),
+            r#"{"type": "enum", "name": "Color", "symbols": ["RED", "GREEN", "BLUE"]}"#,
+            Value::Enum(0, "RED".to_string()),
+        );
+
+        test_ok(
+            &DataType::Varchar,
+            Some(ScalarImpl::Utf8("BLUE".into())),
+            r#"{"type": "enum", "name": "Color", "symbols": ["RED", "GREEN", "BLUE"]}"#,
+            Value::Enum(2, "BLUE".to_string()),
+        );
+
+        test_ok(
+            &DataType::Varchar,
+            Some(ScalarImpl::Utf8("ACTIVE".into())),
+            r#"{"type": "enum", "name": "Status", "symbols": ["ACTIVE", "INACTIVE"]}"#,
+            Value::Enum(0, "ACTIVE".to_string()),
         );
 
         // Test complex JSON with nested structures - using serde_json::Value comparison
