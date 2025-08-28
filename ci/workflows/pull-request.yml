@@ -17,7 +17,9 @@ anchors:
             - "v1-cache-{{ id }}-"
           backend: s3
           s3:
-            bucket: rw-ci-cache-bucket
+            bucket: "${AWS_CARGO_CACHE_BUCKET}"
+            endpoint: "${AWS_ENDPOINT_URL}"
+            region: "${AWS_DEFAULT_REGION}"
             args: "--no-progress"
           paths:
             - ".cargo/registry/index"
@@ -74,7 +76,7 @@ steps:
     plugins:
       - *cargo-cache
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 15
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "build other components"
@@ -82,14 +84,14 @@ steps:
     key: "build-other"
     plugins:
       - *cargo-cache
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            GITHUB_TOKEN: github-token
+#      - seek-oss/aws-sm#v2.3.2:
+#          env:
+#            GITHUB_TOKEN: github-token
       - docker-compose#v5.5.0:
           <<: *docker-compose
           environment:
           - GITHUB_TOKEN
-    timeout_in_minutes: 20
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "build (deterministic simulation)"
@@ -106,7 +108,7 @@ steps:
     plugins:
       - *cargo-cache
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end test"
@@ -120,8 +122,8 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 35
-    parallelism: 4
+    timeout_in_minutes: 90
+    parallelism: 2
     retry: *auto-retry
   - label: "e2e preload-memory test"
     command: "DEFAULT_ENABLE_MEM_PRELOAD_STATE_TABLE=true ci/scripts/e2e-test-serial.sh -p ci-dev -m ci-3streaming-2serving-3fe"
@@ -134,8 +136,8 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 35
-    parallelism: 4
+    timeout_in_minutes: 90
+    parallelism: 2
     retry: *auto-retry
 
   - label: "slow end-to-end test"
@@ -151,7 +153,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 20
+    timeout_in_minutes: 30
     retry: *auto-retry
 
   - label: "meta backup test"
@@ -166,7 +168,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 45
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end test (parallel)"
@@ -183,7 +185,7 @@ steps:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
     timeout_in_minutes: 38
-    parallelism: 4
+    parallelism: 2
     retry: *auto-retry
 
   - label: "end-to-end test for opendal (parallel)"
@@ -194,7 +196,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 14
+    timeout_in_minutes: 30
     retry: *auto-retry
 
   - label: "end-to-end source test"
@@ -212,7 +214,7 @@ steps:
           run: source-test-env
           upload-container-logs: always
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 25
+    timeout_in_minutes: 90
     parallelism: 2
     retry: *auto-retry
 
@@ -230,7 +232,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 25
+    timeout_in_minutes: 90
     parallelism: 2
     retry: *auto-retry
 
@@ -248,7 +250,7 @@ steps:
         java_version:
           - "11"
           - "17"
-    timeout_in_minutes: 10
+    timeout_in_minutes: 30
     retry: *auto-retry
 
   - label: "end-to-end iceberg test"
@@ -262,7 +264,7 @@ steps:
           <<: *docker-compose
           run: iceberg-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 22
+    timeout_in_minutes: 90
     parallelism: 2
     retry: *auto-retry
 
@@ -277,7 +279,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end mqtt sink test"
@@ -291,7 +293,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end clickhouse sink test"
@@ -305,7 +307,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end time travel test"
@@ -319,7 +321,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 15
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end sqlserver sink test"
@@ -333,7 +335,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end deltalake sink test"
@@ -347,7 +349,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end redis sink test"
@@ -361,7 +363,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end doris sink test"
@@ -375,7 +377,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end starrocks sink test"
@@ -389,7 +391,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end cassandra sink test"
@@ -403,7 +405,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end mongodb sink test"
@@ -417,7 +419,7 @@ steps:
           <<: *docker-compose
           run: sink-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "e2e java-binding test"
@@ -429,7 +431,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 10
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "regress test"
@@ -444,7 +446,7 @@ steps:
           <<: *docker-compose
           run: regress-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 5
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   # The timeout should be strictly less than timeout in `main-cron.yml`.
@@ -458,10 +460,10 @@ steps:
       || build.env("CI_STEPS") =~ /(^|,)unit-tests?(,|$$)/
     plugins:
       - *cargo-cache
-      - ./ci/plugins/swapfile
+      #- ./ci/plugins/swapfile
       - docker-compose#v5.5.0:
           <<: *docker-compose
-    timeout_in_minutes: 30
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "check"
@@ -473,7 +475,7 @@ steps:
     plugins:
       - *cargo-cache
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 25
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "check dylint"
@@ -485,7 +487,7 @@ steps:
     plugins:
       - *cargo-cache
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 25
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "documentation"
@@ -508,7 +510,7 @@ steps:
       || build.env("CI_STEPS") =~ /(^|,)unit-tests?-deterministic-simulation(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 12
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "integration test (deterministic simulation)"
@@ -522,28 +524,29 @@ steps:
       - docker-compose#v5.5.0: *docker-compose
       # Only upload zipped files, otherwise the logs is too much.
       - ./ci/plugins/upload-failure-logs-zipped
-    timeout_in_minutes: 25
+    timeout_in_minutes: 90
     retry: *auto-retry
 
-  - label: "end-to-end test (deterministic simulation)"
-    command: "TEST_NUM=4 ci/scripts/deterministic-e2e-test.sh"
-    if: |
-      !(build.pull_request.labels includes "ci/pr/run-selected") && build.env("CI_STEPS") == null
-      || build.pull_request.labels includes "ci/run-e2e-test-deterministic-simulation"
-      || build.env("CI_STEPS") =~ /(^|,)e2e-tests?-deterministic-simulation(,|$$)/
-    depends_on: "build-simulation"
-    plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            GITHUB_TOKEN: github-token
-      - docker-compose#v5.5.0:
-          <<: *docker-compose
-          environment:
-          - GITHUB_TOKEN
-      - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 35
-    parallelism: 4
-    retry: *auto-retry
+  # This uses the sqlsmith-query-snapshots.git project which is private for risingwave
+  #- label: "end-to-end test (deterministic simulation)"
+  #  command: "TEST_NUM=4 ci/scripts/deterministic-e2e-test.sh"
+  #  if: |
+  #    !(build.pull_request.labels includes "ci/pr/run-selected") && build.env("CI_STEPS") == null
+  #    || build.pull_request.labels includes "ci/run-e2e-test-deterministic-simulation"
+  #    || build.env("CI_STEPS") =~ /(^|,)e2e-tests?-deterministic-simulation(,|$$)/
+  #  depends_on: "build-simulation"
+  #  plugins:
+  #    - seek-oss/aws-sm#v2.3.2:
+  #        env:
+  #          GITHUB_TOKEN: github-token
+  #    - docker-compose#v5.5.0:
+  #        <<: *docker-compose
+  #        environment:
+  #        - GITHUB_TOKEN
+  #    - ./ci/plugins/upload-failure-logs
+  #  timeout_in_minutes: 35
+  #  parallelism: 4
+  #  retry: *auto-retry
 
   - label: "recovery test (deterministic simulation)"
     command: "TEST_NUM=4 KILL_RATE=1.0 BACKGROUND_DDL_RATE=0.0 ci/scripts/deterministic-recovery-test.sh"
@@ -562,8 +565,8 @@ steps:
       # - test-collector#v1.0.0:
       #     files: "*-junit.xml"
       #     format: "junit"
-    timeout_in_minutes: 40
-    parallelism: 4
+    timeout_in_minutes: 90
+    parallelism: 2
     retry: *auto-retry
   - label: "preload memory recovery test (deterministic simulation)"
     command: "DEFAULT_ENABLE_MEM_PRELOAD_STATE_TABLE=true TEST_NUM=4 KILL_RATE=1.0 BACKGROUND_DDL_RATE=0.0 ci/scripts/deterministic-recovery-test.sh"
@@ -575,8 +578,8 @@ steps:
       - docker-compose#v5.5.0: *docker-compose
       # Only upload zipped files, otherwise the logs is too much.
       - ./ci/plugins/upload-failure-logs-zipped
-    timeout_in_minutes: 40
-    parallelism: 4
+    timeout_in_minutes: 90
+    parallelism: 2
     retry: *auto-retry
 
   # The following jobs are triggered only when PR has corresponding labels.
@@ -590,14 +593,14 @@ steps:
       || build.pull_request.labels includes "ci/run-heap-flamegraph"
       || build.env("CI_STEPS") =~ /(^|,)(cpu-flamegraph|heap-flamegraph)(,|$$)/
     plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            GITHUB_TOKEN: github-token
+      #- seek-oss/aws-sm#v2.3.2:
+      #    env:
+      #      GITHUB_TOKEN: github-token
       - docker-compose#v5.5.0:
           <<: *docker-compose
           environment:
           - GITHUB_TOKEN
-    timeout_in_minutes: 20
+    timeout_in_minutes: 60
 
   # Generates cpu flamegraph if label `ci/run-cpu-flamegraph` is added to PR.
   - label: "Generate CPU flamegraph"
@@ -605,9 +608,9 @@ steps:
     depends_on: "flamegraph-env-build"
     if: build.pull_request.labels includes "ci/run-cpu-flamegraph" || build.env("CI_STEPS") =~ /(^|,)cpu-flamegraph(,|$$)/
     plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            GITHUB_TOKEN: github-token
+      #- seek-oss/aws-sm#v2.3.2:
+      #    env:
+      #      GITHUB_TOKEN: github-token
       - docker-compose#v5.5.0:
           <<: *docker-compose
           run: ci-flamegraph-env
@@ -627,9 +630,9 @@ steps:
     if: build.pull_request.labels includes "ci/run-heap-flamegraph" || build.env("CI_STEPS") =~ /(^|,)heap-flamegraph(,|$$)/
 
     plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            GITHUB_TOKEN: github-token
+      #- seek-oss/aws-sm#v2.3.2:
+      #    env:
+      #      GITHUB_TOKEN: github-token
       - docker-compose#v5.5.0:
           <<: *docker-compose
           run: ci-flamegraph-env
@@ -684,7 +687,7 @@ steps:
       - docker-compose#v5.5.0:
           <<: *docker-compose
           run: ci-flamegraph-env
-    timeout_in_minutes: 40
+    timeout_in_minutes: 90
 
   - label: "Backfill tests"
     command: "BUILDKITE=${BUILDKITE:-} ci/scripts/backfill-test.sh -p ci-dev"
@@ -696,7 +699,7 @@ steps:
           <<: *docker-compose
           run: source-test-env
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 30
+    timeout_in_minutes: 90
 
   - label: "e2e standalone binary test"
     command: "ci/scripts/e2e-test-serial.sh -p ci-dev -m standalone"
@@ -706,7 +709,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 40
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "e2e single-node binary test"
@@ -717,7 +720,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 30
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "end-to-end test ({{matrix.label}} backend)"
@@ -732,7 +735,7 @@ steps:
           run: ci-standard-env
           propagate-environment: true
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 37
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   # FIXME(kwannoel): Let the github PR labeller label it, if sqlsmith source files has changes.
@@ -743,10 +746,10 @@ steps:
       - "build"
       - "build-simulation"
     plugins:
-      - ./ci/plugins/swapfile
+      #- ./ci/plugins/swapfile
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 15
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "deterministic fuzz test"
@@ -755,10 +758,10 @@ steps:
     depends_on:
       - "build-simulation"
     plugins:
-      - ./ci/plugins/swapfile
+      #- ./ci/plugins/swapfile
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 45
+    timeout_in_minutes: 90
     retry: *auto-retry
 
   - label: "enable ci/pr/run-selected only in draft PRs"
@@ -782,10 +785,10 @@ steps:
       - "BUILDKITE_BUILD_NUMBER=$BUILDKITE_BUILD_NUMBER ci/scripts/upload-micro-bench-results.sh"
     depends_on: "run-micro-benchmarks"
     plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            BUILDKITE_TOKEN: buildkite_token
-            GITHUB_TOKEN: github-token
+      #- seek-oss/aws-sm#v2.3.2:
+      #    env:
+      #      BUILDKITE_TOKEN: buildkite_token
+      #      GITHUB_TOKEN: github-token
       - docker-compose#v5.5.0:
           <<: *docker-compose
           environment:
@@ -796,16 +799,16 @@ steps:
   - wait: ~
 
   # Only if all steps are successful, we upload coverage reports.
-  - label: "upload coverage reports"
-    command: "ci/scripts/upload-coverage.sh"
-    plugins:
-      - seek-oss/aws-sm#v2.3.2:
-          env:
-            CODECOV_TOKEN: my-codecov-token
-      - docker-compose#v5.5.0:
-          <<: *docker-compose
-          environment:
-          - CODECOV_TOKEN
-    timeout_in_minutes: 10
-    retry: *auto-retry
-    soft_fail: true
+  #- label: "upload coverage reports"
+  #  command: "ci/scripts/upload-coverage.sh"
+  #  plugins:
+  #    - seek-oss/aws-sm#v2.3.2:
+  #        env:
+  #          CODECOV_TOKEN: my-codecov-token
+  #    - docker-compose#v5.5.0:
+  #        <<: *docker-compose
+  #        environment:
+  #        - CODECOV_TOKEN
+  #  timeout_in_minutes: 10
+  #  retry: *auto-retry
+  #  soft_fail: true
