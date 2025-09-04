@@ -171,7 +171,7 @@ steps:
       - ./ci/plugins/upload-failure-logs
     timeout_in_minutes: 12
     retry: *auto-retry
-    
+
   - label: "meta backup test"
     key: "e2e-meta-backup-test"
     command: "ci/scripts/run-meta-backup-test.sh -p ci-dev -m ci-3streaming-2serving-3fe"
