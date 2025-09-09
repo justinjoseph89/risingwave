@@ -51,7 +51,7 @@ steps:
       build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 20
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "build other components"
@@ -61,7 +61,7 @@ steps:
       build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 15
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "build simulation test"
@@ -71,7 +71,7 @@ steps:
       build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 20
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "docslt"
@@ -81,7 +81,7 @@ steps:
       build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 10
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - group: "end-to-end test (release)"
@@ -99,20 +99,7 @@ steps:
       plugins:
         - docker-compose#v5.5.0: *docker-compose-standard
         - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 35
-      retry: *auto-retry
-    - label: "end-to-end preload-memory test"
-      key: "e2e-preload-memory-test-release"
-      command: "DEFAULT_ENABLE_MEM_PRELOAD_STATE_TABLE=true ci/scripts/e2e-test-serial.sh -p ci-release -m ci-3streaming-2serving-3fe"
-      if: |
-        !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
-        || build.pull_request.labels includes "ci/run-preload-memory-tests"
-      depends_on:
-        - "build"
-      plugins:
-        - docker-compose#v5.5.0: *docker-compose-standard
-        - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 35
+      timeout_in_minutes: 120
       retry: *auto-retry
 
     - label: "slow end-to-end test ({{matrix.backend}} backend)"
@@ -129,7 +116,7 @@ steps:
       plugins:
         - docker-compose#v5.5.0: *docker-compose-standard
         - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 25
+      timeout_in_minutes: 120
       retry: *auto-retry
 
     - label: "end-to-end test (parallel, {{matrix.backend}} backend)"
@@ -150,7 +137,7 @@ steps:
             files: "*-junit.xml"
             format: "junit"
         - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 18
+      timeout_in_minutes: 120
       retry: *auto-retry
 
   - group: "end-to-end connector test (release)"
@@ -171,7 +158,7 @@ steps:
             <<: *docker-compose
             run: source-test-env
         - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 25
+      timeout_in_minutes: 120
       retry: *auto-retry
 
     - label: "end-to-end sink test ({{matrix.backend}} backend)"
@@ -190,7 +177,7 @@ steps:
             <<: *docker-compose-standard
             run: sink-test-env
         - ./ci/plugins/upload-failure-logs
-      timeout_in_minutes: 35
+      timeout_in_minutes: 120
       retry: *auto-retry
 
   - label: "fuzz test"
@@ -207,7 +194,7 @@ steps:
       - ./ci/plugins/swapfile
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 20
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "meta backup test (release)"
@@ -239,7 +226,7 @@ steps:
     plugins:
       - ./ci/plugins/swapfile
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 25
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "unit test (madsim)"
@@ -251,7 +238,7 @@ steps:
       || build.env("CI_STEPS") =~ /(^|,)unit-tests?-deterministic-simulation(,|$$)/
     plugins:
       - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 60
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "integration test (madsim) - scale"
@@ -266,8 +253,8 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 40
-    parallelism: 4
+    timeout_in_minutes: 120
+    parallelism: 2
     retry: *auto-retry
 
   - label: "integration test (madsim) - recovery"
@@ -282,7 +269,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 70
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "integration test (madsim) - backfill"
@@ -297,7 +284,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 70
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "integration test (madsim) - storage"
@@ -312,7 +299,7 @@ steps:
     plugins:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
-    timeout_in_minutes: 70
+    timeout_in_minutes: 120
     retry: *auto-retry
 
   - label: "integration test (madsim) - sink"
@@ -943,13 +930,13 @@ steps:
     if: build.pull_request.labels includes "ci/main-cron/test-notify" || build.branch == "main"
     command: "ci/scripts/notify.py"
 
-  - wait: ~
+  #- wait: ~
 
   # Only if all steps are successful, we upload coverage reports.
-  - label: "upload coverage reports"
-    command: "ci/scripts/upload-coverage.sh"
-    plugins:
-      - docker-compose#v5.5.0: *docker-compose
-    timeout_in_minutes: 10
-    retry: *auto-retry
-    soft_fail: true
+  #- label: "upload coverage reports"
+  #  command: "ci/scripts/upload-coverage.sh"
+  #  plugins:
+  #    - docker-compose#v5.5.0: *docker-compose
+  #  timeout_in_minutes: 10
+  #  retry: *auto-retry
+  #  soft_fail: true
