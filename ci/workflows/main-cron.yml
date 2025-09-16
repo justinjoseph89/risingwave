@@ -388,9 +388,19 @@ steps:
     timeout_in_minutes: 60
     retry: *auto-retry
 
+  # Wait for all tests to complete before releasing
+  - wait: ~
+    continue_on_failure: false
+    if: build.tag != null && build.pull_request.id == null
+
   - label: "release amd64"
+    key: "release-amd64"
     command: "ci/scripts/release.sh"
     if: build.tag != null && build.pull_request.id == null
+    depends_on:
+      - "build"
+      - "build-other"
+      - "docslt"
     plugins:
       - docker-compose#v5.5.0:
           <<: *docker-compose
@@ -403,9 +413,11 @@ steps:
     retry: *auto-retry
 
   - label: "release docker image: amd64"
+    key: "build-docker-amd64"
     command: "ci/scripts/docker.sh"
-    key: "build-amd64"
     if: build.tag != null && build.pull_request.id == null
+    depends_on:
+      - "release-amd64"
     timeout_in_minutes: 60
     retry: *auto-retry
 
