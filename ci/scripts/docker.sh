@@ -32,10 +32,6 @@ set -e
 echo "--- docker build and tag"
 echo "CARGO_PROFILE is set to ${CARGO_PROFILE}"
 
-docker buildx create \
-  --name container \
-  --driver=docker-container
-
 PULL_PARAM=""
 if [[ "${ALWAYS_PULL:-false}" = "true" ]]; then
   PULL_PARAM="--pull"
@@ -47,19 +43,13 @@ else
   export DOCKER_BUILD_PROGRESS="--progress=plain"
 fi
 
-docker buildx build -f docker/Dockerfile \
+# Use regular docker build instead of buildx
+DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile \
   --build-arg "GIT_SHA=${BUILDKITE_COMMIT}" \
   --build-arg "CARGO_PROFILE=${CARGO_PROFILE}" \
   -t "${acraddr}:${BUILDKITE_COMMIT}-${arch}" \
-  $DOCKER_BUILD_PROGRESS \
-  --builder=container \
-  --load \
-  ${PULL_PARAM} \
-  --cache-to "type=registry,ref=${ACR_LOGIN_SERVER}/risingwave-build-cache:${arch}" \
-  --cache-from "type=registry,ref=${ACR_LOGIN_SERVER}/risingwave-build-cache:${arch}" \
+  --pull \
   .
-
-
 
 echo "--- check the image can start correctly"
 container_id=$(docker run -d "${acraddr}:${BUILDKITE_COMMIT}-${arch}" playground)
