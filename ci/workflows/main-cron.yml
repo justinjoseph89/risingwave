@@ -409,6 +409,7 @@ steps:
           - BINARY_NAME
           - BUILDKITE_TAG
           - BUILDKITE_SOURCE
+          - GH_TOKEN
     timeout_in_minutes: 90
     retry: *auto-retry
 
