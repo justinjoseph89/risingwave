@@ -68,27 +68,6 @@ if [[ -n "${BUILDKITE_TAG}" ]]; then
   fi
 fi
 
-if [[ -n "${BUILDKITE_TAG}" ]]; then
-
-  echo "--- Install gh cli"
-  dnf install -y 'dnf-command(config-manager)'
-  dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
-  dnf install -y gh
-  
-    echo "--- Debug token in Docker container" 
-    echo "GH_TOKEN length: ${#GH_TOKEN}"  
-    echo "GH_TOKEN starts: ${GH_TOKEN:0:30}..." 
-    echo "${GH_TOKEN}"     
-    
-    # Test basic auth   
-    echo "Testing auth status:"   
-    gh auth status || echo "Auth status failed"
-
-    # Test specific repo access 
-    echo "Testing repo access:" 
-    gh repo view justinjoseph89/risingwave --json name || echo "Repo access failed"
-fi
-
 echo "--- Build risingwave release binary"
 export ENABLE_BUILD_DASHBOARD=1
 if [ "${ARCH}" == "aarch64" ]; then
@@ -117,6 +96,11 @@ if [[ -n "${BUILDKITE_TAG}" ]]; then
   mv "${REPO_ROOT}"/java/connector-node/assembly/target/risingwave-connector-1.0.0.tar.gz risingwave-connector-"${BUILDKITE_TAG}".tar.gz
   tar -zxvf risingwave-connector-"${BUILDKITE_TAG}".tar.gz libs
   ls -l
+  
+  echo "--- Install gh cli"
+  dnf install -y 'dnf-command(config-manager)'
+  dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
+  dnf install -y gh
 
   if [ "${SKIP_RELEASE}" -ne 1 ]; then
     echo "--- Release create"

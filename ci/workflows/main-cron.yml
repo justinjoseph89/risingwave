@@ -68,7 +68,7 @@ steps:
     command: "ci/scripts/build-simulation.sh"
     key: "build-simulation"
     if: |
-      build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/
+      build.tag == null && (build.env("CI_STEPS") !~ /(^|,)disable-build(,|$$)/)
     plugins:
       - docker-compose#v5.5.0: *docker-compose
     timeout_in_minutes: 120
@@ -418,7 +418,9 @@ steps:
     command: "ci/scripts/docker.sh"
     if: build.tag != null && build.pull_request.id == null
     depends_on:
-      - "release-amd64"
+      - "build"
+      - "build-other"
+      - "docslt"
     timeout_in_minutes: 60
     retry: *auto-retry
 

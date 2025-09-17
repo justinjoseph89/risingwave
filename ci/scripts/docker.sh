@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
-# Exits as soon as any line fails.
+# Exits as  soon as any line fails.
 set -euo pipefail
+
+REPO_ROOT=${PWD}
 
 export DOCKER_BUILDKIT=1
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
@@ -30,6 +32,9 @@ set -e
 
 # Build RisingWave docker image ${BUILDKITE_COMMIT}-${arch}
 echo "--- docker build and tag"
+echo "${REPO_ROOT}"
+echo "${PWD}"
+
 echo "CARGO_PROFILE is set to ${CARGO_PROFILE}"
 
 PULL_PARAM=""
@@ -49,7 +54,7 @@ DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile \
   --build-arg "CARGO_PROFILE=${CARGO_PROFILE}" \
   -t "${acraddr}:${BUILDKITE_COMMIT}-${arch}" \
   --pull \
-  .
+  "${REPO_ROOT}"
 
 echo "--- check the image can start correctly"
 container_id=$(docker run -d "${acraddr}:${BUILDKITE_COMMIT}-${arch}" playground)
