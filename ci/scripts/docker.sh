@@ -37,6 +37,10 @@ echo "${PWD}"
 
 echo "CARGO_PROFILE is set to ${CARGO_PROFILE}"
 
+# Change back to repo root for docker build
+cd "${REPO_ROOT}"
+echo "Current directory for docker build: $(pwd)"
+
 PULL_PARAM=""
 if [[ "${ALWAYS_PULL:-false}" = "true" ]]; then
   PULL_PARAM="--pull"
@@ -49,7 +53,7 @@ else
 fi
 
 # Use regular docker build instead of buildx
-DOCKER_BUILDKIT=1 docker build -f docker/Dockerfile \
+DOCKER_BUILDKIT=1 docker build -f "${REPO_ROOT}/docker/Dockerfile" \
   --build-arg "GIT_SHA=${BUILDKITE_COMMIT}" \
   --build-arg "CARGO_PROFILE=${CARGO_PROFILE}" \
   -t "${acraddr}:${BUILDKITE_COMMIT}-${arch}" \
