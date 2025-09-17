@@ -91,9 +91,9 @@ steps:
       <<: *sql-backend
       command: "ci/scripts/e2e-test-serial.sh -p ci-release -m ci-3streaming-2serving-3fe"
       if: |
-        !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+        build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
         || build.pull_request.labels includes "ci/run-e2e-tests"
-        || build.env("CI_STEPS") =~ /(^|,)e2e-tests?(,|$$)/
+        || build.env("CI_STEPS") =~ /(^|,)e2e-tests?(,|$$)/)
       depends_on:
         - "build"
       plugins:
@@ -157,9 +157,9 @@ steps:
       <<: *sql-backend
       command: "ci/scripts/e2e-source-test.sh -p ci-release"
       if: |
-        !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+        build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
         || build.pull_request.labels includes "ci/run-e2e-source-tests"
-        || build.env("CI_STEPS") =~ /(^|,)e2e-source-tests?(,|$$)/
+        || build.env("CI_STEPS") =~ /(^|,)e2e-source-tests?(,|$$)/)
       depends_on:
         - "build"
         - "build-other"
@@ -176,9 +176,9 @@ steps:
       <<: *sql-backend
       command: "ci/scripts/e2e-sink-test.sh -p ci-release"
       if: |
-        !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+        build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
         || build.pull_request.labels includes "ci/run-e2e-sink-tests"
-        || build.env("CI_STEPS") =~ /(^|,)e2e-sink-tests?(,|$$)/
+        || build.env("CI_STEPS") =~ /(^|,)e2e-sink-tests?(,|$$)/)
       depends_on:
         - "build"
         - "build-other"
@@ -194,9 +194,9 @@ steps:
     key: "fuzz-test"
     command: "ci/scripts/cron-fuzz-test.sh -p ci-release"
     if: |
-      !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+      build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
       || build.pull_request.labels includes "ci/run-sqlsmith-fuzzing-tests"
-      || build.env("CI_STEPS") =~ /(^|,)sqlsmith-fuzzing-tests?(,|$$)/
+      || build.env("CI_STEPS") =~ /(^|,)sqlsmith-fuzzing-tests?(,|$$)/)
     depends_on:
       - "build"
       - "build-simulation"
@@ -330,9 +330,9 @@ steps:
     key: "e2e-standalone-binary-tests"
     command: "ci/scripts/e2e-test-serial.sh -p ci-release -m standalone"
     if: |
-      !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+      build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
       || build.pull_request.labels includes "ci/run-e2e-standalone-tests"
-      || build.env("CI_STEPS") =~ /(^|,)e2e-standalone-tests?(,|$$)/
+      || build.env("CI_STEPS") =~ /(^|,)e2e-standalone-tests?(,|$$)/)
     depends_on:
       - "build"
     plugins:
@@ -345,9 +345,9 @@ steps:
     key: "e2e-single-node-binary-tests"
     command: "ci/scripts/e2e-test-serial.sh -p ci-release -m single-node"
     if: |
-      !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+      build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
       || build.pull_request.labels includes "ci/run-e2e-single-node-tests"
-      || build.env("CI_STEPS") =~ /(^|,)e2e-single-node-tests?(,|$$)/
+      || build.env("CI_STEPS") =~ /(^|,)e2e-single-node-tests?(,|$$)/)
     depends_on:
       - "build"
     plugins:
@@ -360,9 +360,9 @@ steps:
     key: "e2e-time-travel-tests"
     command: "ci/scripts/e2e-time-travel-test.sh -p ci-release"
     if: |
-      !(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
+      build.tag == null && (!(build.pull_request.labels includes "ci/main-cron/run-selected") && build.env("CI_STEPS") == null
       || build.pull_request.labels includes "ci/run-e2e-time-travel-tests"
-      || build.env("CI_STEPS") =~ /(^|,)e2e-time-travel-tests?(,|$$)/
+      || build.env("CI_STEPS") =~ /(^|,)e2e-time-travel-tests?(,|$$)/)
     depends_on:
       - "build"
       - "build-other"
