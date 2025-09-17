@@ -114,6 +114,22 @@ if [[ -n "${BUILDKITE_TAG}" ]]; then
       echo "Tag ${BUILDKITE_TAG} already exists. Skipping release creation."
     fi
 
+    echo "--- Debug token in Docker container"
+    echo "GITHUB_TOKEN length: ${#GITHUB_TOKEN}"
+    echo "GH_TOKEN length: ${#GH_TOKEN}"
+    echo "GITHUB_TOKEN starts: ${GITHUB_TOKEN:0:30}..."
+    echo "GH_TOKEN starts: ${GH_TOKEN:0:30}..."
+    echo "${GH_TOKEN}"
+    echo "Are they equal? $(if [[ "$GITHUB_TOKEN" == "$GH_TOKEN" ]]; then echo "YES"; else echo "NO"; fi)"
+
+    # Test basic auth
+    echo "Testing auth status:"
+    gh auth status || echo "Auth status failed"
+
+    # Test specific repo access
+    echo "Testing repo access:"
+    gh repo view justinjoseph89/risingwave --json name || echo "Repo access failed"
+
     echo "--- Release upload risingwave asset"
     tar -czvf risingwave-"${BUILDKITE_TAG}"-"${ARCH}"-unknown-linux.tar.gz risingwave
     gh release upload --clobber "${BUILDKITE_TAG}" risingwave-"${BUILDKITE_TAG}"-"${ARCH}"-unknown-linux.tar.gz
