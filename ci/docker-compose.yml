@@ -242,6 +242,12 @@ services:
     # - Amazon Linux 2: 2.26 (Originally EOL 2023-06-30, superseded by AL2023)
     image: quay.io/pypa/manylinux_2_28_x86_64:2025.03.23-1
     working_dir: /mnt
+    environment:  # ADD THIS
+      - GH_TOKEN
+      - GITHUB_TOKEN
+      - BUILDKITE_TAG
+      - BUILDKITE_SOURCE
+      - BINARY_NAME
     volumes:
       - ..:/mnt
 
