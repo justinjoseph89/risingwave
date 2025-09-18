@@ -87,7 +87,7 @@ services:
       retries: 5
 
   source-test-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       - mysql
       - mysql-meta
@@ -105,7 +105,7 @@ services:
     stop_grace_period: 30s
 
   sink-test-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       - mysql
       - mysql-meta
@@ -129,7 +129,7 @@ services:
     stop_grace_period: 30s
 
   iceberg-test-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       - mysql
       - db
@@ -140,14 +140,14 @@ services:
     stop_grace_period: 30s
 
   rw-build-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     volumes:
       - ..:/risingwave
     stop_grace_period: 30s
 
   # Standard environment for CI, including MySQL and Postgres for metadata.
   ci-standard-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       - mysql-meta
       - db
@@ -156,7 +156,7 @@ services:
     stop_grace_period: 30s
 
   iceberg-engine-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       - db
     volumes:
@@ -164,7 +164,7 @@ services:
     stop_grace_period: 30s
 
   ci-flamegraph-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     # NOTE(kwannoel): This is used in order to permit
     # syscalls for `nperf` (perf_event_open),
     # so it can do CPU profiling.
@@ -175,7 +175,7 @@ services:
       - ..:/risingwave
 
   regress-test-env:
-    image: public.ecr.aws/w1p7b4n3/rw-build-env:${BUILD_ENV_VERSION:?}
+    image: "${ACR_LOGIN_SERVER}/${ACR_REPOSITORY}:${BUILD_ENV_VERSION}"
     depends_on:
       db:
         condition: service_healthy
