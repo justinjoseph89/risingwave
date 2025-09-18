@@ -5566,29 +5566,29 @@ dependencies = [
 
 [[package]]
 name = "foyer"
-version = "0.18.1"
+version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "642093b1a72c4a0ef89862484d669a353e732974781bb9c49a979526d1e30edc"
+checksum = "0618db36554a0a5db538d7ff04427571b1f668d3e86a764aabe17985c02ea14c"
 dependencies = [
+ "anyhow",
  "equivalent",
  "fastrace",
  "foyer-common",
  "foyer-memory",
  "foyer-storage",
  "madsim-tokio",
- "mixtrics",
+ "mixtrics 0.1.0",
  "pin-project",
  "serde",
- "thiserror 2.0.16",
  "tokio",
  "tracing",
 ]
 
 [[package]]
 name = "foyer-common"
-version = "0.18.1"
+version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9db9c0e4648b13e9216d785b308d43751ca975301aeb83e607ec630b6f956944"
+checksum = "dbf63fd16ba6227de0004472156048338ad7544280d1200c27e4b4a82ca6f075"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -5596,7 +5596,7 @@ dependencies = [
  "fastrace",
  "itertools 0.14.0",
  "madsim-tokio",
- "mixtrics",
+ "mixtrics 0.1.0",
  "parking_lot 0.12.4",
  "pin-project",
  "serde",
@@ -5616,9 +5616,9 @@ dependencies = [
 
 [[package]]
 name = "foyer-memory"
-version = "0.18.1"
+version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "040dc38acbfca8f1def26bbbd9e9199090884aabb15de99f7bf4060be66ff608"
+checksum = "3ae8a1c8e263f91cf3abca38bbf6b8f82f34b6cf20fa3a249c90ebfa795e5631"
 dependencies = [
  "arc-swap",
  "bitflags 2.9.4",
@@ -5630,7 +5630,7 @@ dependencies = [
  "hashbrown 0.15.5",
  "itertools 0.14.0",
  "madsim-tokio",
- "mixtrics",
+ "mixtrics 0.1.0",
  "parking_lot 0.12.4",
  "pin-project",
  "serde",
@@ -5641,14 +5641,16 @@ dependencies = [
 
 [[package]]
 name = "foyer-storage"
-version = "0.18.1"
+version = "0.17.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54a77ed888da490e997da6d6d62fcbce3f202ccf28be098c4ea595ca046fc4a9"
+checksum = "d387ab178f8bcb03fe4981766c9f436007234d8ca73080e3ad2c370d8d75113b"
 dependencies = [
  "allocator-api2",
  "anyhow",
+ "array-util",
  "auto_enums",
  "bytes",
+ "clap",
  "equivalent",
  "fastrace",
  "flume",
