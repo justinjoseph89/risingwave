@@ -13,7 +13,7 @@ cd "$DIR"
 : "${ACR_USERNAME:?Set ACR_USERNAME in environment}"
 : "${ACR_PASSWORD:?Set ACR_PASSWORD in environment}"
 
-acraddr="${ACR_LOGIN_SERVER}/risingwavelabs"
+acraddr="${ACR_LOGIN_SERVER}/risingwavelabs/risingwave"
 arch="$(uname -m)"
 CARGO_PROFILE=${CARGO_PROFILE:-production}
 
