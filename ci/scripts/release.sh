@@ -96,7 +96,7 @@ if [[ -n "${BUILDKITE_TAG}" ]]; then
   mv "${REPO_ROOT}"/java/connector-node/assembly/target/risingwave-connector-1.0.0.tar.gz risingwave-connector-"${BUILDKITE_TAG}".tar.gz
   tar -zxvf risingwave-connector-"${BUILDKITE_TAG}".tar.gz libs
   ls -l
-  
+
   echo "--- Install gh cli"
   dnf install -y 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
