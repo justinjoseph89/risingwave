@@ -13,7 +13,7 @@ cd "$DIR"
 : "${ACR_USERNAME:?Set ACR_USERNAME in environment}"
 : "${ACR_PASSWORD:?Set ACR_PASSWORD in environment}"
 
-acraddr="${ACR_LOGIN_SERVER}/risingwave"
+acraddr="${ACR_LOGIN_SERVER}/risingwavelabs"
 arch="$(uname -m)"
 CARGO_PROFILE=${CARGO_PROFILE:-production}
 
@@ -80,11 +80,11 @@ docker rm -f "$container_id" 2>/dev/null || true
 echo "--- docker tag and push to release ---"
 if [[ -n "${BUILDKITE_TAG:-}" ]]; then
   echo "--- Tagging release ${BUILDKITE_TAG}"
-  docker tag "${acraddr}:${BUILDKITE_COMMIT}-${arch}" "${acraddr}:${BUILDKITE_TAG}-${arch}"
-  docker tag "${acraddr}:${BUILDKITE_COMMIT}-${arch}" "${acraddr}:latest-${arch}"
+  docker tag "${acraddr}:${BUILDKITE_COMMIT}-${arch}" "${acraddr}:${BUILDKITE_TAG}"
+  docker tag "${acraddr}:${BUILDKITE_COMMIT}-${arch}" "${acraddr}:latest"
 
-  docker push "${acraddr}:${BUILDKITE_TAG}-${arch}"
-  docker push "${acraddr}:latest-${arch}"
+  docker push "${acraddr}:${BUILDKITE_TAG}"
+  docker push "${acraddr}:latest"
 fi
 
 echo "--- docker push"
