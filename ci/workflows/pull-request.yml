@@ -123,7 +123,7 @@ steps:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
     timeout_in_minutes: 90
-    parallelism: 4
+    parallelism: 2
     retry: *auto-retry
   - label: "e2e preload-memory test"
     command: "DEFAULT_ENABLE_MEM_PRELOAD_STATE_TABLE=true ci/scripts/e2e-test-serial.sh -p ci-dev -m ci-3streaming-2serving-3fe"
@@ -185,7 +185,7 @@ steps:
       - docker-compose#v5.5.0: *docker-compose
       - ./ci/plugins/upload-failure-logs
     timeout_in_minutes: 38
-    parallelism: 4
+    parallelism: 2
     retry: *auto-retry
 
   - label: "end-to-end test for opendal (parallel)"
