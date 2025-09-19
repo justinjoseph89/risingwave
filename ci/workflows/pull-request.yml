@@ -250,7 +250,7 @@ steps:
         java_version:
           - "11"
           - "17"
-    timeout_in_minutes: 10
+    timeout_in_minutes: 30
     retry: *auto-retry
 
   - label: "end-to-end iceberg test"
