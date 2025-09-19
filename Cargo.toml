@@ -80,10 +80,10 @@ resolver = "2"
 [workspace.package]
 version = "2.7.0-test"
 edition = "2024"
-homepage = "https://github.com/risingwavelabs/risingwave"
+homepage = "https://github.com/justinjoseph89/risingwave"
 keywords = ["sql", "database", "streaming"]
 license = "Apache-2.0"
-repository = "https://github.com/risingwavelabs/risingwave"
+repository = "https://github.com/justinjoseph89/risingwave"
 
 # some dependencies are not worth deleting.
 [workspace.metadata.cargo-machete]
