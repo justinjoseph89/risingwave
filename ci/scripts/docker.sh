@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Exits as  soon as any line fails.
+# Exits as soon as any line fails.
 set -euo pipefail
 
 REPO_ROOT=${PWD}
@@ -44,12 +44,6 @@ echo "Current directory for docker build: $(pwd)"
 PULL_PARAM=""
 if [[ "${ALWAYS_PULL:-false}" = "true" ]]; then
   PULL_PARAM="--pull"
-fi
-
-if [[ -z ${BUILDKITE} ]]; then
-  export DOCKER_BUILD_PROGRESS="--progress=auto"
-else
-  export DOCKER_BUILD_PROGRESS="--progress=plain"
 fi
 
 # Use regular docker build instead of buildx
