@@ -1,16 +1,16 @@
-name: Cherry-pick PRs to release branches
-on:
-  pull_request:
-    branches:
-      - main
-    types: ["closed", "labeled"]
-  workflow_dispatch:
-    inputs:
-      pr_number:
-        description: "PR number to cherry-pick"
-        required: true
-        type: number
-      base_version:
+#name: Cherry-pick PRs to release branches
+#on:
+#  pull_request:
+#    branches:
+#      - main
+#    types: ["closed", "labeled"]
+#  workflow_dispatch:
+#    inputs:
+#      pr_number:
+#        description: "PR number to cherry-pick"
+#        required: true
+#        type: number
+#      base_version:
         description: "Base version to cherry-pick since"
         default: "2.1"
         required: true

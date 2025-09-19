@@ -84,9 +84,20 @@ check_link_info production
 
 cd target/production && chmod +x risingwave risectl
 
-echo "--- Build connector node"
-echo "${REPO_ROOT}"
+#if [ "${SKIP_RELEASE}" -ne 1 ]; then
+#  echo "--- Upload nightly binary to s3"
+#  if [ "${BUILDKITE_SOURCE}" == "schedule" ]; then
+#    tar -czvf risingwave-"$(date '+%Y%m%d')"-"${ARCH}"-unknown-linux.tar.gz risingwave
+#    aws s3 cp risingwave-"$(date '+%Y%m%d')"-"${ARCH}"-unknown-linux.tar.gz s3://rw-nightly-pre-built-binary
+#  elif [[ -n "${BINARY_NAME+x}" ]]; then
+#    tar -czvf risingwave-"${BINARY_NAME}"-"${ARCH}"-unknown-linux.tar.gz risingwave
+#    aws s3 cp risingwave-"${BINARY_NAME}"-"${ARCH}"-unknown-linux.tar.gz s3://rw-nightly-pre-built-binary
+#  fi
+#else
+#  echo "--- Skipped upload nightly binary"
+#fi
 
+echo "--- Build connector node"
 cd "${REPO_ROOT}"/java && mvn -B package -Dmaven.test.skip=true -Dno-build-rust
 
 if [[ -n "${BUILDKITE_TAG}" ]]; then
@@ -96,7 +107,7 @@ if [[ -n "${BUILDKITE_TAG}" ]]; then
   mv "${REPO_ROOT}"/java/connector-node/assembly/target/risingwave-connector-1.0.0.tar.gz risingwave-connector-"${BUILDKITE_TAG}".tar.gz
   tar -zxvf risingwave-connector-"${BUILDKITE_TAG}".tar.gz libs
   ls -l
-  
+
   echo "--- Install gh cli"
   dnf install -y 'dnf-command(config-manager)'
   dnf config-manager --add-repo https://cli.github.com/packages/rpm/gh-cli.repo
